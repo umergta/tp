@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
+import static seedu.module.commons.util.CollectionUtil.requireAllNonNull;
+
 /**
  * Represents a Task's deadline in the module book.
  * Guarantees: immutable; is valid as declared in {@link #isValidDeadline(String)}
@@ -49,9 +51,23 @@ public class Deadline {
         }
     }
 
+
     public LocalDateTime getTime() {
         return this.time;
     }
+
+    public LocalDate getDate() {
+        return this.date;
+    }
+
+    public Deadline setNewDate(LocalDateTime newDate) {
+        requireAllNonNull(newDate);
+
+        String newValue = newDate.format(ISO_LOCAL_DATE);
+        Deadline deadlineCopy = new Deadline(newValue);
+        return deadlineCopy;
+    }
+
 
     /**
      * Returns true if a given string is a valid deadline.

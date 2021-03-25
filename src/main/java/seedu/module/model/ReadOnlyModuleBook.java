@@ -4,7 +4,7 @@ import javafx.collections.ObservableList;
 import seedu.module.model.task.Task;
 
 /**
- * Unmodifiable view of an module book
+ * Unmodifiable view of a module book
  */
 public interface ReadOnlyModuleBook {
 

@@ -16,6 +16,7 @@ import seedu.module.model.task.Description;
 import seedu.module.model.task.DoneStatus;
 import seedu.module.model.task.Module;
 import seedu.module.model.task.Name;
+import seedu.module.model.task.Recurrence;
 import seedu.module.model.task.Task;
 import seedu.module.model.task.Workload;
 
@@ -32,6 +33,7 @@ class JsonAdaptedTask {
     private final String module;
     private final String description;
     private final String workload;
+    private final String recurrence;
     private final String doneStatus;
     private final List<JsonAdaptedTag> tagged = new ArrayList<>();
 
@@ -42,13 +44,20 @@ class JsonAdaptedTask {
     public JsonAdaptedTask(@JsonProperty("name") String name, @JsonProperty("deadline") String deadline,
             @JsonProperty("module") String module, @JsonProperty("description") String description,
             @JsonProperty("workload") String workload, @JsonProperty("doneStatus") String doneStatus,
-            @JsonProperty("tagged") List<JsonAdaptedTag> tagged) {
+            @JsonProperty("recurrence") String recurrence, @JsonProperty("tagged") List<JsonAdaptedTag> tagged) {
         this.name = name;
         this.deadline = deadline;
         this.module = module;
         this.description = description;
         this.workload = workload;
         this.doneStatus = doneStatus;
+
+        if (recurrence != null) {
+            this.recurrence = recurrence;
+        } else {
+            this.recurrence = "";
+        }
+
         if (tagged != null) {
             this.tagged.addAll(tagged);
         }
@@ -64,6 +73,11 @@ class JsonAdaptedTask {
         description = source.getDescription().value;
         workload = source.getWorkload().toString();
         doneStatus = source.getDoneStatus().value;
+        if (source.isRecurringTask()) {
+            recurrence = source.getTaskRecurrence().value;
+        } else {
+            recurrence = "";
+        }
         tagged.addAll(source.getTags().stream()
                 .map(JsonAdaptedTag::new)
                 .collect(Collectors.toList()));
@@ -133,8 +147,25 @@ class JsonAdaptedTask {
 
         final DoneStatus modelDoneStatus = new DoneStatus(doneStatus);
 
+        Recurrence modelRecurrence;
+        boolean isRecurringTask;
+        if (recurrence.equals("") || recurrence == null) {
+            modelRecurrence = null;
+            isRecurringTask = false;
+        } else {
+            if (!Recurrence.isValidRecurrence(recurrence)) {
+                throw new IllegalValueException(Recurrence.MESSAGE_CONSTRAINTS);
+            }
+            modelRecurrence = new Recurrence(recurrence);
+            isRecurringTask = true;
+        }
+
         final Set<Tag> modelTags = new HashSet<>(taskTags);
-        return new Task(modelName, modelDeadline, modelModule, modelDescription,
+
+        return isRecurringTask
+                ? new Task(modelName, modelDeadline, modelModule, modelDescription,
+                modelWorkload, modelDoneStatus, modelRecurrence, modelTags)
+                : new Task(modelName, modelDeadline, modelModule, modelDescription,
                 modelWorkload, modelDoneStatus, modelTags);
     }
 

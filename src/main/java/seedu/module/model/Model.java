@@ -1,6 +1,7 @@
 package seedu.module.model;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.function.Predicate;
 
 import javafx.collections.ObservableList;
@@ -11,7 +12,9 @@ import seedu.module.model.task.Task;
  * The API of the Model component.
  */
 public interface Model {
-    /** {@code Predicate} that always evaluate to true */
+    /**
+     * {@code Predicate} that always evaluate to true
+     */
     Predicate<Task> PREDICATE_SHOW_ALL_TASKS = unused -> true;
 
     /**
@@ -49,7 +52,9 @@ public interface Model {
      */
     void setModuleBook(ReadOnlyModuleBook moduleBook);
 
-    /** Returns the ModuleBook */
+    /**
+     * Returns the ModuleBook
+     */
     ReadOnlyModuleBook getModuleBook();
 
     /**
@@ -81,12 +86,22 @@ public interface Model {
      */
     void sortTasks();
 
-    /** Returns an unmodifiable view of the filtered task list */
+    /**
+     * Returns an unmodifiable view of the filtered task list
+     */
     ObservableList<Task> getFilteredTaskList();
 
     /**
      * Updates the filter of the filtered task list to filter by the given {@code predicate}.
+     *
      * @throws NullPointerException if {@code predicate} is null.
      */
     void updateFilteredTaskList(Predicate<Task> predicate);
+
+    /**
+     * Adds all the tasks in {@code tasks}.
+     * All tasks in {@code tasks} must not already exist in the module book.
+     * @param tasks
+     */
+    void addTasks(List<Task> tasks);
 }

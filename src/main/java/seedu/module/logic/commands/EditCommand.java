@@ -21,13 +21,8 @@ import seedu.module.commons.util.CollectionUtil;
 import seedu.module.logic.commands.exceptions.CommandException;
 import seedu.module.model.Model;
 import seedu.module.model.tag.Tag;
-import seedu.module.model.task.Deadline;
-import seedu.module.model.task.Description;
-import seedu.module.model.task.DoneStatus;
+import seedu.module.model.task.*;
 import seedu.module.model.task.Module;
-import seedu.module.model.task.Name;
-import seedu.module.model.task.Task;
-import seedu.module.model.task.Workload;
 
 /**
  * Edits the details of an existing task in the module book except for DoneStatus.
@@ -84,7 +79,9 @@ public class EditCommand extends Command {
         if (!taskToEdit.isSameTask(editedTask) && model.hasTask(editedTask)) {
             throw new CommandException(MESSAGE_DUPLICATE_TASK);
         }
-
+        if (taskToEdit.isRecurringTask()) {
+            //edit the rest of the same tasks as well... need to edit all of the "same" tasks
+        }
         model.setTask(taskToEdit, editedTask);
         model.updateFilteredTaskList(PREDICATE_SHOW_ALL_TASKS);
         return new CommandResult(String.format(MESSAGE_EDIT_TASK_SUCCESS, editedTask));
@@ -103,10 +100,16 @@ public class EditCommand extends Command {
         Description updatedDescription = editTaskDescriptor.getDescription().orElse(taskToEdit.getDescription());
         Workload updatedWorkload = editTaskDescriptor.getWorkload().orElse(taskToEdit.getWorkload());
         DoneStatus originalDoneStatus = taskToEdit.getDoneStatus();
+        Recurrence updatedRecurrence = taskToEdit.getTaskRecurrence();
         Set<Tag> updatedTags = editTaskDescriptor.getTags().orElse(taskToEdit.getTags());
 
-        return new Task(updatedName, updatedDeadline, updatedModule, updatedDescription,
-                updatedWorkload, originalDoneStatus, updatedTags);
+        if (updatedRecurrence == null) {
+            return new Task(updatedName, updatedDeadline, updatedModule, updatedDescription, updatedWorkload,
+                    originalDoneStatus, updatedTags);
+        } else {
+            return new Task(updatedName, updatedDeadline, updatedModule, updatedDescription, updatedWorkload,
+                    originalDoneStatus, updatedRecurrence, updatedTags);
+        }
     }
 
     @Override
@@ -137,6 +140,7 @@ public class EditCommand extends Command {
         private Module module;
         private Description description;
         private Workload workload;
+        private Recurrence recurrence;
         private Set<Tag> tags;
 
         public EditTaskDescriptor() {}
@@ -151,6 +155,7 @@ public class EditCommand extends Command {
             setModule(toCopy.module);
             setDescription(toCopy.description);
             setWorkload(toCopy.workload);
+            setRecurrence(toCopy.recurrence);
             setTags(toCopy.tags);
         }
 
@@ -158,7 +163,7 @@ public class EditCommand extends Command {
          * Returns true if at least one field is edited.
          */
         public boolean isAnyFieldEdited() {
-            return CollectionUtil.isAnyNonNull(name, deadline, module, description, workload, tags);
+            return CollectionUtil.isAnyNonNull(name, deadline, module, description, workload, recurrence, tags);
         }
 
         public void setName(Name name) {
@@ -201,6 +206,14 @@ public class EditCommand extends Command {
             return Optional.ofNullable(workload);
         }
 
+        public Optional<Recurrence> getReccurence() {
+            return Optional.ofNullable(recurrence);
+        }
+
+        public void setRecurrence(Recurrence recurrence) {
+            this.recurrence = recurrence;
+        }
+
         /**
          * Sets {@code tags} to this object's {@code tags}.
          * A defensive copy of {@code tags} is used internally.
@@ -217,6 +230,7 @@ public class EditCommand extends Command {
         public Optional<Set<Tag>> getTags() {
             return (tags != null) ? Optional.of(Collections.unmodifiableSet(tags)) : Optional.empty();
         }
+
 
         @Override
         public boolean equals(Object other) {
@@ -238,6 +252,7 @@ public class EditCommand extends Command {
                     && getModule().equals(e.getModule())
                     && getDescription().equals(e.getDescription())
                     && getWorkload().equals(e.getWorkload())
+                    && getReccurence().equals(e.getReccurence())
                     && getTags().equals(e.getTags());
         }
     }

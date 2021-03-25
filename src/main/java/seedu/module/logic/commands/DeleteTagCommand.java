@@ -59,9 +59,17 @@ public class DeleteTagCommand extends Command {
         Task taskToTag = lastShownList.get(index.getZeroBased());
         Set<Tag> oldTags = taskToTag.getTags();
         Set<Tag> newTags = deleteTag(oldTags, this.tag);
-        Task editedTask = new Task(taskToTag.getName(), taskToTag.getDeadline(),
-                taskToTag.getModule(), taskToTag.getDescription(), taskToTag.getWorkload(),
-                taskToTag.getDoneStatus(), newTags);
+        Task editedTask;
+        if (taskToTag.isRecurringTask()) {
+            editedTask = new Task(taskToTag.getName(), taskToTag.getDeadline(),
+                    taskToTag.getModule(), taskToTag.getDescription(), taskToTag.getWorkload(),
+                    taskToTag.getDoneStatus(), taskToTag.getTaskRecurrence(), newTags);
+        } else {
+            editedTask = new Task(taskToTag.getName(), taskToTag.getDeadline(),
+                    taskToTag.getModule(), taskToTag.getDescription(), taskToTag.getWorkload(),
+                    taskToTag.getDoneStatus(), newTags);
+        }
+
 
         if (!taskToTag.isSameTask(editedTask) && model.hasTask(editedTask)) {
             //no change to tags deleted as it does not exists

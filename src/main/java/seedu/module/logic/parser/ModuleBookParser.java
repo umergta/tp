@@ -6,21 +6,7 @@ import static seedu.module.commons.core.Messages.MESSAGE_UNKNOWN_COMMAND;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import seedu.module.logic.commands.AddCommand;
-import seedu.module.logic.commands.ClearCommand;
-import seedu.module.logic.commands.Command;
-import seedu.module.logic.commands.DeleteCommand;
-import seedu.module.logic.commands.DeleteTagCommand;
-import seedu.module.logic.commands.DoneCommand;
-import seedu.module.logic.commands.EditCommand;
-import seedu.module.logic.commands.ExitCommand;
-import seedu.module.logic.commands.FindCommand;
-import seedu.module.logic.commands.FindTagCommand;
-import seedu.module.logic.commands.HelpCommand;
-import seedu.module.logic.commands.ListCommand;
-import seedu.module.logic.commands.NotDoneCommand;
-import seedu.module.logic.commands.SortCommand;
-import seedu.module.logic.commands.TagCommand;
+import seedu.module.logic.commands.*;
 import seedu.module.logic.parser.exceptions.ParseException;
 
 /**
@@ -91,6 +77,9 @@ public class ModuleBookParser {
 
         case SortCommand.COMMAND_WORD:
             return new SortCommand();
+
+        case RecurCommand.COMMAND_WORD:
+            return new RecurCommandParser().parse(arguments);
 
         default:
             throw new ParseException(MESSAGE_UNKNOWN_COMMAND);

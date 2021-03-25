@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static seedu.module.commons.util.CollectionUtil.requireAllNonNull;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
@@ -106,6 +107,14 @@ public class ModelManager implements Model {
     }
 
     @Override
+    public void addTasks(List<Task> tasks) {
+        for (Task newTask : tasks) {
+            moduleBook.addTask(newTask);
+        }
+        updateFilteredTaskList(PREDICATE_SHOW_ALL_TASKS);
+    }
+
+    @Override
     public void setTask(Task target, Task editedTask) {
         requireAllNonNull(target, editedTask);
 
@@ -117,6 +126,7 @@ public class ModelManager implements Model {
         moduleBook.sortTasks();
         updateFilteredTaskList(PREDICATE_SHOW_ALL_TASKS);
     }
+
 
     //=========== Filtered Task List Accessors =============================================================
 
