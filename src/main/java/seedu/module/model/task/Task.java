@@ -24,7 +24,7 @@ public class Task {
     private Time startTime;
     private final Time deadline;
     private final Module module;
-    private boolean isRecurringTask;
+    private final boolean isRecurringTask;
     private final boolean isDeadline;
 
     // Data fields
@@ -184,6 +184,33 @@ public class Task {
         return otherTask != null
                 && otherTask.getName().equals(getName())
                 && otherTask.getModule().equals(getModule());
+    }
+
+    /**
+     * Returns true if both tasks have the same name and same module code.
+     * This defines a weaker notion of equality between two tasks.
+     */
+    public boolean isSameRecurringTask(Task otherTask) {
+        if (otherTask == this) {
+            return true;
+        }
+        boolean isRecurring;
+        isRecurring = otherTask != null
+                && otherTask.getName().equals(getName())
+                && otherTask.getModule().equals(getModule())
+                && otherTask.getRecurrence().equals(getRecurrence())
+                && otherTask.getDeadline().equals(getDeadline())
+                && otherTask.getDescription().equals(getDescription())
+                && otherTask.getDoneStatus().equals(getDoneStatus())
+                && otherTask.getWorkload().equals(getWorkload())
+                && otherTask.getTags().equals(getTags());
+
+        if (otherTask.isDeadline()) {
+            //check if the task has a startTime or not
+            return isDeadline() ? isRecurring : false;
+        } else {
+            return isRecurring && otherTask.getStartTime().equals(getStartTime());
+        }
     }
 
     /**

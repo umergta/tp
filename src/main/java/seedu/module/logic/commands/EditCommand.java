@@ -87,16 +87,27 @@ public class EditCommand extends Command {
         Task taskToEdit = lastShownList.get(index.getZeroBased());
         Task editedTask = createEditedTask(taskToEdit, editTaskDescriptor);
 
-        if (!taskToEdit.isSameTask(editedTask) && model.hasTask(editedTask) && !taskToEdit.isRecurring()) {
-            throw new CommandException(MESSAGE_DUPLICATE_TASK);
-        }
-
-        if (taskToEdit.isRecurring() && model.hasRecurringTask(editedTask) && taskToEdit.equals(editedTask)) {
-            throw new CommandException(String.format(MESSAGE_DUPLICATE_RECURRENCE, taskToEdit.getRecurrence()));
-        }
-
         if (editedTask.isTimeInvalid()) {
             throw new CommandException(Task.INVALID_START_TIME);
+        }
+        if (!editedTask.isRecurring() && editedTask.isDeadline()) {
+            if (taskToEdit.isSameTask(editedTask) && !taskToEdit.isRecurring()) {
+                throw new CommandException(MESSAGE_DUPLICATE_TASK);
+            }
+        } else if (!editedTask.isRecurring() && !editedTask.isDeadline()) {
+            // just need to check time validity
+        } else if (editedTask.isRecurring() && editedTask.isDeadline()) {
+            // need to check recurrence
+            if (taskToEdit.isRecurring() && model.hasRecurringTask(editedTask) && taskToEdit.equals(editedTask)) {
+                throw new CommandException(String.format(MESSAGE_DUPLICATE_RECURRENCE, taskToEdit.getRecurrence()));
+            }
+        } else if (editedTask.isRecurring() && !editedTask.isDeadline()) {
+            // need to check for recurrence
+            if (taskToEdit.isRecurring() && model.hasRecurringTask(editedTask) && taskToEdit.equals(editedTask)) {
+                throw new CommandException(String.format(MESSAGE_DUPLICATE_RECURRENCE, taskToEdit.getRecurrence()));
+            }
+        } else {
+
         }
 
         model.setTask(taskToEdit, editedTask);
@@ -121,15 +132,15 @@ public class EditCommand extends Command {
         Recurrence updatedRecurrence = editTaskDescriptor.getRecurrence().orElse(taskToEdit.getRecurrence());
         Set<Tag> updatedTags = editTaskDescriptor.getTags().orElse(taskToEdit.getTags());
 
-        if (!taskToEdit.isRecurring() && !taskToEdit.isDeadline()) {
+        if (!editTaskDescriptor.isRecurring && !editTaskDescriptor.isDeadline) {
             return new Task(updatedName, updatedStartTime, updatedDeadline, updatedModule, updatedDescription,
                     updatedWorkload, originalDoneStatus, updatedTags);
 
-        } else if (!taskToEdit.isRecurring() && taskToEdit.isDeadline()) {
+        } else if (!editTaskDescriptor.isRecurring && editTaskDescriptor.isDeadline) {
             return new Task(updatedName, updatedDeadline, updatedModule, updatedDescription,
                     updatedWorkload, originalDoneStatus, updatedTags);
 
-        } else if (taskToEdit.isRecurring() && !taskToEdit.isDeadline()) {
+        } else if (editTaskDescriptor.isRecurring && !editTaskDescriptor.isDeadline) {
             return new Task(updatedName, updatedStartTime, updatedDeadline, updatedModule, updatedDescription,
                     updatedWorkload, originalDoneStatus, updatedRecurrence, updatedTags);
 
@@ -170,6 +181,8 @@ public class EditCommand extends Command {
         private Workload workload;
         private Recurrence recurrence;
         private Set<Tag> tags;
+        private boolean isRecurring;
+        private boolean isDeadline;
 
         public EditTaskDescriptor() {}
 

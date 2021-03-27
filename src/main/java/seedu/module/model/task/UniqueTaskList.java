@@ -46,7 +46,7 @@ public class UniqueTaskList implements Iterable<Task> {
      */
     public boolean containsRecurringTask(Task toCheck) {
         requireNonNull(toCheck);
-        return internalList.stream().anyMatch(toCheck::equals);
+        return internalList.stream().anyMatch(toCheck::isSameRecurringTask);
     }
 
     /**
